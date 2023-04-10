@@ -1,0 +1,85 @@
+version: "3.9"
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+      max-file: "3"
+      tag: {% raw %}'blockchain|validator_management|prysm|{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}
+
+
+services:
+
+  import-validator-keys:
+    profiles: ["import-validator-keys"]
+    restart: "no"
+    image: {{ prysm_docker_image_validator }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/prysm:{{ prysm_data_dir }}:rw
+      - {{ host_keystore_dir }}:{{ container_keystore_dir }}:ro
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "prysm"
+      slingnode_layer: "validator"
+    command:
+      - --datadir={{ prysm_data_dir }}
+      - --verbosity={{ prysm_log_level }}
+      - --log-format=json
+      - accounts
+      - import
+      - --{{ network }}
+      - --keys-dir={{ container_keystore_dir }}
+      - --wallet-dir={{ prysm_wallet_dir }}
+      - --accept-terms-of-use
+      - --wallet-password-file={{ prysm_wallet_password_file }}
+      - --account-password-file={{ container_keystore_dir }}/{{ keystore_password_file }}
+
+
+  import-slashing-protection-db:
+    profiles: ["import-slashing-protection-db"]
+    restart: "no"
+    image: {{ prysm_docker_image_validator }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/prysm:{{ prysm_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:ro
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "prysm"
+      slingnode_layer: "validator"
+    command:
+      - --verbosity={{ prysm_log_level }}
+      - --log-format=json
+      - slashing-protection-history
+      - import
+      - --datadir={{ prysm_data_dir }}
+      - --{{ network }}
+      - --accept-terms-of-use
+      - --slashing-protection-json-file={{ container_slashing_protection_db_file }}
+
+
+  export-slashing-protection-db:
+    profiles: ["export-slashing-protection-db"]
+    restart: "no"
+    image: {{ prysm_docker_image_validator }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/prysm:{{ prysm_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:rw
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "prysm"
+      slingnode_layer: "validator"
+    command:
+      - --verbosity={{ prysm_log_level }}
+      - --log-format=json
+      - slashing-protection-history
+      - export
+      - --{{ network }}
+      - --datadir={{ prysm_data_dir }}
+      - --accept-terms-of-use
+      - --slashing-protection-export-dir={{ container_slashing_protection_db_dir }}

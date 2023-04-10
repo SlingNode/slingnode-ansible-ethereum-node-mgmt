@@ -1,0 +1,41 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+
+
+  vars:
+    docker_package_state: present
+    docker_install_compose_plugin: true
+
+    clients:
+      consensus: nimbus
+      validator: nimbus
+
+    deploy_execution: false
+    deploy_consensus: true
+    deploy_validator: true
+
+    # skipping firewall set up to reduce time it takes to run the tests
+    enable_firewall: false
+
+    import_slashing_protection_db: true
+    copy_slashing_protection_db_to_server: true
+    source_slashing_protection_db_to_copy: molecule/resources/test_validator_keystores/slashing_protection_db.json
+
+
+  tasks:
+    - name: Install docker
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+
+
+    - name: Deploy Validator
+      ansible.builtin.include_role:
+        name: slingnode.ethereum
+
+
+    - name: "Include slingnode-ansible-ethereum-node-mgmt"
+      ansible.builtin.include_role:
+        name: "slingnode-ansible-ethereum-node-mgmt"

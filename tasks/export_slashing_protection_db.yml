@@ -1,0 +1,36 @@
+- name: Copy docker-compose file
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0600'
+  with_items:
+    - src: dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml.j2
+      dest: "{{ blockchain_docker_compose_path }}/dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml"
+
+
+- name: Stop validator container
+  community.docker.docker_container:
+    name: "{{ container_name_validator }}"
+    state: absent
+
+
+- name: Delete slashing protection DB dump if it exists
+  ansible.builtin.file:
+    path: "{{ host_slashing_protection_db_file }}"
+    state: absent
+
+
+- name: Export slashing protection db
+  community.docker.docker_compose:
+    project_src: "{{ blockchain_docker_compose_path }}"
+    files:
+      - dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml
+    remove_orphans: false
+    profiles:
+      - export-slashing-protection-db
+  register: output
+
+
+- name: Docker output
+  ansible.builtin.debug:
+    var: output

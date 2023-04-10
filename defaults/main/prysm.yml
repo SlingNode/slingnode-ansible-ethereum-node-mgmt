@@ -1,0 +1,17 @@
+prysm_docker_image_validator: gcr.io/prysmaticlabs/prysm/validator:v3.2.2
+
+prysm_data_dir: /var/lib/prysm
+
+prysm_wallet_file_name: prysm_wallet_pass.txt
+
+prysm_wallet_dir: /var/lib/prysm
+prysm_wallet_password_file: "{{ prysm_wallet_dir }}/{{ prysm_wallet_file_name }}"
+
+# prysm_wallet_password:
+#   - src: files/test_validator_keys/{{ prysm_wallet_file_name }}
+#     dest: "{{ blockchain_root_path }}/validator/prysm/{{ prysm_wallet_file_name }}"
+
+# Logging verbosity (trace, debug, info=default, warn, error, fatal, panic) (default: "info")
+prysm_log_level: info
+
+prysm_validator_api_token_file: "{{ blockchain_root_path }}/validator/prysm/auth-token"

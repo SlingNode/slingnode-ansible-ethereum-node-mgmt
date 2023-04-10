@@ -1,0 +1,59 @@
+- name: Copy keystore and password files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ validator_client_user.user }}"
+    group: "{{ validator_client_group.group }}"
+    mode: '0700'
+  loop: "{{ keystore_files }}"
+
+
+- name: Copy Prysm wallet pass files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ validator_client_user.user }}"
+    group: "{{ validator_client_group.group }}"
+    mode: '0700'
+  loop: "{{ prysm_wallet_password }}"
+  when: clients.validator == "prysm"
+
+
+- name: Copy docker-compose files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0600'
+  loop:
+    - src: dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml.j2
+      dest: "{{ blockchain_docker_compose_path }}/dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml"
+  when: not clients.validator == "teku"
+
+
+- name: Stop validator container to import keystores
+  community.docker.docker_container:
+    name: "{{ container_name_validator }}"
+    state: stopped
+
+
+- name: Import validator keys
+  community.docker.docker_compose:
+    project_src: "{{ blockchain_docker_compose_path }}"
+    files:
+      - dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml
+    remove_orphans: false
+    profiles:
+      - import-validator-keys
+  register: output
+  when: clients.validator == "lighthouse" or clients.validator == "prysm"
+
+
+- name: Docker output
+  ansible.builtin.debug:
+    var: output
+
+
+- name: Start validator container to import keystores
+  community.docker.docker_container:
+    name: "{{ container_name_validator }}"
+    state: started

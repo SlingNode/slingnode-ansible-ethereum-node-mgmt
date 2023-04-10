@@ -1,0 +1,80 @@
+---
+role_name_check: 1
+dependency:
+  name: galaxy
+  options:
+    ignore-certs: true
+    ignore-errors: true
+    role-file: requirements_dev.yml
+    requirements-file: requirements.yml
+
+
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+  provision: false
+  cachier: machine
+  parallel: true
+  default_box: '${SLINGNODE_BOX:-generic/ubuntu2204}'
+
+
+platforms:
+  - name: instance
+    hostname: slingnode-test-01
+    config_options:
+      ssh.keep_alive: true
+      ssh.remote_user: 'vagrant'
+      synced_folder: false
+    memory: 8192
+    cpus: 4
+    provider_options:
+      video_type: 'vga'
+      driver: 'kvm'
+      cpu_mode: 'host-passthrough'
+      video_vram: '16384'
+
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_PIPELINING: "True"
+  playbooks:
+    converge: ../resources/playbooks/converge.yml
+    prepare: ../resources/playbooks/prepare_with_consensus.yml
+  inventory:
+    group_vars:
+      all:
+        clients:
+          consensus: teku
+          validator: teku
+        import_validator_keys_api: true
+        blockchain_root_path: /opt/blockchain
+        teku_validator_api_token_file: "{{ blockchain_root_path }}/validator/teku/validator/key-manager/validator-api-bearer"
+        keystores_without_slashing_protection:
+          - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.json
+            password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.txt
+          - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.json
+            password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.txt
+        keystores_with_slashing_protection:
+          - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_0_0_0-1669980799.json
+            password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_0_0_0-1669980799.txt
+            slashing_protection_db: molecule/resources/test_validator_keystores/slashing_protection_db.json
+
+
+verifier:
+  name: ansible
+
+
+scenario:
+  name: teku_import_validator_keys_api
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - destroy

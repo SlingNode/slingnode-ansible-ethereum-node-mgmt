@@ -1,0 +1,70 @@
+# default vars common with blockchain role
+network: goerli
+
+blockchain_root_path: /opt/blockchain
+
+blockchain_docker_compose_path: "{{ blockchain_root_path }}/blockchain_dc"
+
+container_name_validator: validator
+
+validator_client_group:
+  group: validator_client
+  gid: 39284
+
+validator_client_user:
+  user: validator_client
+  uid: 39284
+
+host_keystore_dir: "{{ blockchain_root_path }}/validator/keystore"
+container_keystore_dir: /keystore
+
+validator_api_port: 7500
+
+# end vars common with blockchain role
+
+validator_dir_paths:
+  - "{{ host_keystore_dir }}"
+  - "{{ host_slashing_protection_db_dir }}"
+  - "{{ blockchain_root_path }}/validator/{{ clients.validator }}"
+
+slashing_protection_db_file_name: slashing_protection.json
+
+host_slashing_protection_db_dir: "{{ blockchain_root_path }}/validator/slashing_protection_db"
+host_slashing_protection_db_file: "{{ host_slashing_protection_db_dir }}/{{ slashing_protection_db_file_name }}"
+
+container_slashing_protection_db_dir: /slashing_protection_db
+container_slashing_protection_db_file: "{{ container_slashing_protection_db_dir }}/{{ slashing_protection_db_file_name }}"
+
+copy_slashing_protection_db_to_server: false
+# source_slashing_protection_db_to_copy: molecule/resources/test_validator_keystores/slashing_protection_db.json
+
+
+# Validate Validator API TLS certificates
+validate_certs: false
+
+keystore_password_file: "keystore-m_12381_3600_1_0_0-1680087924.txt"
+
+#  Variables used with CMD based key import
+#
+# keystore_files:
+#   - src: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.json
+#     dest: "{{ blockchain_root_path }}/validator/keystore/keystore-m_12381_3600_1_0_0-1680087924.json"
+#   - src: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.txt
+#     dest: "{{ blockchain_root_path }}/validator/keystore/keystore-m_12381_3600_1_0_0-1680087924.txt"
+#   - src: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.json
+#     dest: "{{ blockchain_root_path }}/validator/keystore/keystore-m_12381_3600_2_0_0-1680087924.json"
+#   - src: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.txt
+#     dest: "{{ blockchain_root_path }}/validator/keystore/keystore-m_12381_3600_2_0_0-1680087924.txt"
+
+
+# Variables used with API based key import
+#
+# keystores_without_slashing_protection:
+#   - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.json
+#     password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_1_0_0-1680087924.txt
+#   - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.json
+#     password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_2_0_0-1680087924.txt
+# keystores_with_slashing_protection:
+#   - keystore: molecule/resources/test_validator_keystores/keystore-m_12381_3600_0_0_0-1669980799.json
+#     password: molecule/resources/test_validator_keystores/keystore-m_12381_3600_0_0_0-1669980799.txt
+#     slashing_protection_db: molecule/resources/test_validator_keystores/slashing_protection_db.json

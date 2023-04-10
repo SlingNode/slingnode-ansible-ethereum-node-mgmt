@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: "Include slingnode-ansible-ethereum-node-mgmt"
+      ansible.builtin.include_role:
+        name: "slingnode-ansible-ethereum-node-mgmt"

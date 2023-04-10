@@ -1,0 +1,13 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+
+
+  tasks:
+
+
+    - name: Include test tasks
+      ansible.builtin.include_tasks:
+        file: ../resources/tests/import_validator_keys.yml

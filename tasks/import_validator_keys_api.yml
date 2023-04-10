@@ -1,0 +1,73 @@
+---
+# Prysm's auth token is on the second line, all others on the first one
+- name: Retrieve API token
+  ansible.builtin.shell: |
+    set -euxo pipefail && tail -n 1 \
+    {{ nimbus_validator_api_token_file if clients.validator == 'nimbus' else teku_validator_api_token_file if clients.validator == 'teku' else lighthouse_validator_api_token_file if clients.validator == 'lighthouse' else prysm_validator_api_token_file if clients.validator == 'prysm' }}
+  args:
+    executable: /bin/bash
+  register: shell_command_output
+  changed_when: shell_command_output.rc == 0
+  #  Lighthouse and Prysm create the token file only after they have successfuly connected to consensus
+  until: "shell_command_output is not failed"
+  retries: 20
+  delay: 3
+
+
+- name: Import keystores without slashing protection db
+  ansible.builtin.uri:
+    url: "{{ 'https' if clients.validator == 'teku' else 'http' }}://127.0.0.1:{{ validator_api_port }}/eth/v1/keystores"
+    method: POST
+    status_code:
+      - 200
+    return_content: true
+    validate_certs: "{{ validate_certs }}"
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ shell_command_output.stdout }}"
+    body_format: json
+    body:
+      keystores: ["{{ lookup('file', item.keystore) | from_json | to_json(separators=(',', ':')) }}"]
+      passwords: ["{{ lookup('file', item.password) }}"]
+  register: keystore_import_response
+  loop: "{{ keystores_without_slashing_protection }}"
+  when: keystores_without_slashing_protection is defined
+  until: keystore_import_response['status'] == 200 or keystore_import_response['status'] == 400
+  retries: 20
+  delay: 3
+
+
+- name: Ensure import withouth Slashing DB has been successful (this checks only the first keystore)
+  ansible.builtin.assert:
+    that:
+      - keystore_import_response['results'][0]['json']['data'][0]['status'] == 'imported' or keystore_import_response['results'][0]['json']['data'][0]['status'] == 'duplicate'
+
+
+- name: Import keystores with slashing protection db
+  ansible.builtin.uri:
+    url: "{{ 'https' if clients.validator == 'teku' else 'http' }}://127.0.0.1:{{ validator_api_port }}/eth/v1/keystores"
+    method: POST
+    status_code:
+      - 200
+    return_content: true
+    validate_certs: "{{ validate_certs }}"
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ shell_command_output.stdout }}"
+    body_format: json
+    body:
+      keystores: ["{{ lookup('file', item.keystore) | from_json | to_json(separators=(',', ':')) }}"]
+      passwords: ["{{ lookup('file', item.password) }}"]
+      slashing_protection: "{{ lookup('file', item.slashing_protection_db) | from_json | to_json(separators=(',', ':')) }}"
+  register: keystore_import_response
+  loop: "{{ keystores_with_slashing_protection }}"
+  when: keystores_with_slashing_protection is defined
+  until: keystore_import_response['status'] == 200 or keystore_import_response['status'] == 400
+  retries: 20
+  delay: 3
+
+
+- name: Ensure import with Slashing DB has been successful (this checks only the first keystore)
+  ansible.builtin.assert:
+    that:
+      - keystore_import_response['results'][0]['json']['data'][0]['status'] == 'imported' or keystore_import_response['results'][0]['json']['data'][0]['status'] == 'duplicate'

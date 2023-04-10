@@ -1,0 +1,35 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+
+
+  vars:
+    docker_package_state: present
+    docker_install_compose_plugin: true
+
+    # clients.validator var is specifed as group var in molecule.yml
+
+    deploy_execution: false
+    deploy_consensus: false
+    deploy_validator: true
+
+    validator_api_enabled: true
+    expose_validator_api_port_to_host: true
+    host_ip_address_to_bind_to: 0.0.0.0
+
+    # skipping firewall set up to reduce time it takes to run the tests
+    enable_firewall: false
+
+
+  tasks:
+
+    - name: Install docker
+      ansible.builtin.include_role:
+        name: geerlingguy.docker
+
+
+    - name: Deploy Validator
+      ansible.builtin.include_role:
+        name: slingnode.ethereum

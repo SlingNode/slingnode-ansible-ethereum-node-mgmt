@@ -1,0 +1,60 @@
+version: "3.9"
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+      max-file: "3"
+      tag: {% raw %}'blockchain|validator_management|teku|{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}
+
+
+services:
+
+  import-slashing-protection-db:
+    profiles: ["import-slashing-protection-db"]
+    restart: "no"
+    image: {{ teku_docker_image }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    environment:
+      JAVA_OPTS: "{{ teku_java_opts }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/teku:{{ teku_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:ro
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "teku"
+      slingnode_layer: "validator"
+    command:
+      - --log-destination=CONSOLE
+      - --logging={{ teku_log_level }}
+      - --network={{ network }}
+      - slashing-protection
+      - import
+      - --data-path={{ teku_data_dir }}
+      - --from={{ container_slashing_protection_db_file }}
+
+
+  export-slashing-protection-db:
+    profiles: ["export-slashing-protection-db"]
+    restart: "no"
+    image: {{ teku_docker_image }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    environment:
+      JAVA_OPTS: "{{ teku_java_opts }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/teku:{{ teku_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:rw
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "teku"
+      slingnode_layer: "validator"
+    command:
+      - --log-destination=CONSOLE
+      - --logging={{ teku_log_level }}
+      - --network={{ network }}
+      - slashing-protection
+      - export
+      - --data-path={{ teku_data_dir }}
+      - --to={{ container_slashing_protection_db_file }}

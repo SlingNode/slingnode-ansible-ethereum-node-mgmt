@@ -1,0 +1,7 @@
+lighthouse_docker_image: sigp/lighthouse:v4.0.1-modern
+
+lighthouse_data_dir: /var/lib/lighthouse
+
+lighthouse_log_level: info # possible values: info, debug, trace, warn, error, crit
+
+lighthouse_validator_api_token_file: "{{ blockchain_root_path }}/validator/lighthouse/validators/api-token.txt"

@@ -1,0 +1,4 @@
+profile: production
+offline: false
+warn_list:
+  - yaml[line-length]

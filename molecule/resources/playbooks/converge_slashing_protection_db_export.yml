@@ -1,0 +1,17 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: false
+
+
+  vars:
+    # Var specifed in the converge playbook instead of group_vars in molecule.yml so that
+    # the prepare stage does not pick it up
+    export_slashing_protection_db: true
+
+
+  tasks:
+    - name: "Include slingnode-ansible-ethereum-node-mgmt"
+      ansible.builtin.include_role:
+        name: "slingnode-ansible-ethereum-node-mgmt"

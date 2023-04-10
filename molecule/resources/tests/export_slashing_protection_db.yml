@@ -1,0 +1,17 @@
+---
+- name: Ensure public key exists in the export file
+  ansible.builtin.shell: |
+    set -euxo pipefail && cat /opt/blockchain/validator/slashing_protection_db/slashing_protection.json
+  args:
+    executable: /bin/bash
+  register: shell_command_output
+  changed_when: shell_command_output.rc == 0
+  until: "shell_command_output is not failed"
+  retries: 20
+  delay: 3
+
+
+- name: Verify asserts
+  ansible.builtin.assert:
+    that:
+      - shell_command_output.stdout.find("0x876a9a7fadb5b9d2114a5180f9fe50b451cbab5f241b42e476b724a3575e5a8277767bc5a7c831c63f066a9a725c") != -1

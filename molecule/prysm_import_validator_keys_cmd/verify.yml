@@ -1,0 +1,21 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: Ensure the keystore file has been created
+      ansible.builtin.stat:
+        path: /opt/blockchain/validator/prysm/direct/accounts/all-accounts.keystore.json
+      register: keystore_file
+      until: keystore_file.stat.exists
+      retries: 10
+      delay: 3
+
+
+    - name: Verify asserts
+      ansible.builtin.assert:
+        that:
+          - keystore_file.stat.exists

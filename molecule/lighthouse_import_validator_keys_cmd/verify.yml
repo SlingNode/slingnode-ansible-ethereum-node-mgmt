@@ -1,0 +1,36 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    # Not verifying using API because Lighthouse does not list the keys using
+    # the API after cmd import, the container needs to be restarted for the keys to
+    # be visible using the API
+
+    - name: Ensure the keystore file has been created
+      ansible.builtin.stat:
+        path: /opt/blockchain/validator/lighthouse/validators/0x88a471158d618a8f9997dcb2cc1921411392d82d00e339ccf912fd9335bd42f97c9de046280d9d5f681a8e73a7d3baad/keystore-m_12381_3600_1_0_0-1680087924.json
+      register: keystore_file
+      until: keystore_file.stat.exists
+      retries: 10
+      delay: 3
+
+
+    - name: Ensure validator_definitions.yml has been updated
+      ansible.builtin.shell: |
+        set -euxo pipefail && cat /opt/blockchain/validator/lighthouse/validators/validator_definitions.yml
+      args:
+        executable: /bin/bash
+      register: shell_command_output
+      changed_when: shell_command_output.rc == 0
+
+
+    - name: Verify asserts
+      ansible.builtin.assert:
+        that:
+          - keystore_file.stat.exists
+          - shell_command_output.stdout.find("0x88a471158d618a8f9997dcb2cc1921411392d82d00e339ccf912fd9335bd42f97c9de046280d9d5f681a8e73a7d3baad") != -1
+          - shell_command_output.stdout.find("0x99c4c42fac7d1393956bd9e2785ed67cf5aaca4bf56d2fcda94c42d6042aebb1723ce6bac6f0216ff8c5d4f9f013008b") != -1

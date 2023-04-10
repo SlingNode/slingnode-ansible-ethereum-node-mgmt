@@ -1,0 +1,33 @@
+---
+argument_specs:
+  main:
+    short_description: The main entry point for the slingnode.ethereum_node_mgmt role.
+    options:
+      clients:
+        type: "dict"
+        required: true
+        options:
+          execution:
+            type: "str"
+            required: false
+            choices:
+              - geth
+              - nethermind
+              - besu
+              - erigon
+          consensus:
+            type: "str"
+            required: false
+            choices:
+              - lighthouse
+              - prysm
+              - teku
+              - nimbus
+          validator:
+            type: "str"
+            required: false
+            choices:
+              - lighthouse
+              - prysm
+              - teku
+              - nimbus

@@ -1,0 +1,76 @@
+version: "3.9"
+x-logging: &logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+      max-file: "3"
+      tag: {% raw %}'blockchain|validator_management|nimbus|{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}'{% endraw %}
+
+
+services:
+
+  import-validator-keys:
+    profiles: ["import-validator-keys"]
+    restart: "no"
+    image: {{ nimbus_docker_image_beacon }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/nimbus:{{ nimbus_data_dir }}:rw
+      - {{ host_keystore_dir }}:{{ container_keystore_dir }}:ro
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "nimbus"
+      slingnode_layer: "validator"
+    command:
+      - --log-level={{ nimbus_log_level }}
+      # - --network={{ network }}
+      - --data-dir={{ nimbus_data_dir }}
+      - deposits
+      - import
+      - {{ container_keystore_dir }}
+
+
+  import-slashing-protection-db:
+    profiles: ["import-slashing-protection-db"]
+    restart: "no"
+    image: {{ nimbus_docker_image_beacon }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/nimbus:{{ nimbus_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:ro
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "nimbus"
+      slingnode_layer: "validator"
+    command:
+      - --log-level={{ nimbus_log_level }}
+      # - --network={{ network }}
+      - --data-dir={{ nimbus_data_dir }}
+      - slashingdb
+      - import
+      - {{ container_slashing_protection_db_file }}
+
+
+  export-slashing-protection-db:
+    profiles: ["export-slashing-protection-db"]
+    restart: "no"
+    image: {{ nimbus_docker_image_beacon }}
+    user: "{{ validator_client_user.uid}}:{{ validator_client_group.gid }}"
+    volumes:
+      - {{ blockchain_root_path }}/validator/nimbus:{{ nimbus_data_dir }}:rw
+      - {{ host_slashing_protection_db_dir }}:{{ container_slashing_protection_db_dir }}:rw
+      - /etc/localtime:/etc/localtime:ro
+    <<: *logging
+    labels:
+      slingnode_client: "nimbus"
+      slingnode_layer: "validator"
+    command:
+      - --log-level={{ nimbus_log_level }}
+      # - --network={{ network }}
+      - --data-dir={{ nimbus_data_dir }}
+      - slashingdb
+      - export
+      - {{ container_slashing_protection_db_file }}

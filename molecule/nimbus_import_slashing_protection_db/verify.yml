@@ -1,0 +1,18 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+
+    - name: Ensure the slashing DB file has been created
+      ansible.builtin.stat:
+        path: /opt/blockchain/validator/nimbus/validators/slashing_protection.sqlite3
+      register: slashing_protection_db_file
+
+
+    - name: Verify asserts
+      ansible.builtin.assert:
+        that:
+          - slashing_protection_db_file.stat.exists

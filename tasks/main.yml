@@ -1,0 +1,34 @@
+---
+- name: Create required dirs
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ validator_client_user.user }}"
+    group: "{{ validator_client_group.group }}"
+    mode: '0700'
+    recurse: true
+  loop: "{{ validator_dir_paths }}"
+
+
+- name: Include import slashing protection db tasks
+  ansible.builtin.include_tasks:
+    file: import_slashing_protection_db.yml
+  when: import_slashing_protection_db|default(false) | bool
+
+
+- name: Include import validator keys usign API tasks
+  ansible.builtin.include_tasks:
+    file: import_validator_keys_api.yml
+  when: import_validator_keys_api|default(false) | bool
+
+
+- name: Include import validator keys using cmd tasks
+  ansible.builtin.include_tasks:
+    file: import_validator_keys_cmd.yml
+  when: import_validator_keys_cmd|default(false) | bool
+
+
+- name: Include export slashing protection db tasks
+  ansible.builtin.include_tasks:
+    file: export_slashing_protection_db.yml
+  when: export_slashing_protection_db|default(false) | bool
