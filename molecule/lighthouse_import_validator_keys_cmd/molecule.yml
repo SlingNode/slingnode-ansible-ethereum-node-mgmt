@@ -17,6 +17,7 @@ driver:
   cachier: machine
   parallel: true
   default_box: '${SLINGNODE_BOX:-generic/ubuntu2204}'
+  force: ${SLINGNODE_FORCE:-true}
 
 
 platforms:

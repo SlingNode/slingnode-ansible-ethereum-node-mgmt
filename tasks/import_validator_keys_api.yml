@@ -41,6 +41,7 @@
   ansible.builtin.assert:
     that:
       - keystore_import_response['results'][0]['json']['data'][0]['status'] == 'imported' or keystore_import_response['results'][0]['json']['data'][0]['status'] == 'duplicate'
+  when: keystore_import_response['changed']
 
 
 - name: Import keystores with slashing protection db
@@ -59,10 +60,10 @@
       keystores: ["{{ lookup('file', item.keystore) | from_json | to_json(separators=(',', ':')) }}"]
       passwords: ["{{ lookup('file', item.password) }}"]
       slashing_protection: "{{ lookup('file', item.slashing_protection_db) | from_json | to_json(separators=(',', ':')) }}"
-  register: keystore_import_response
+  register: keystore_import_response_with_slashing_db
   loop: "{{ keystores_with_slashing_protection }}"
   when: keystores_with_slashing_protection is defined
-  until: keystore_import_response['status'] == 200 or keystore_import_response['status'] == 400
+  until: keystore_import_response_with_slashing_db['status'] == 200 or keystore_import_response_with_slashing_db['status'] == 400
   retries: 20
   delay: 3
 
@@ -70,4 +71,5 @@
 - name: Ensure import with Slashing DB has been successful (this checks only the first keystore)
   ansible.builtin.assert:
     that:
-      - keystore_import_response['results'][0]['json']['data'][0]['status'] == 'imported' or keystore_import_response['results'][0]['json']['data'][0]['status'] == 'duplicate'
+      - keystore_import_response_with_slashing_db['results'][0]['json']['data'][0]['status'] == 'imported' or keystore_import_response_with_slashing_db['results'][0]['json']['data'][0]['status'] == 'duplicate'
+  when: keystore_import_response_with_slashing_db['changed']
