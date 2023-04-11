@@ -7,6 +7,7 @@ dependency:
     ignore-errors: true
     role-file: requirements_dev.yml
     requirements-file: requirements.yml
+    force: ${SLINGNODE_FORCE:-true}
 
 
 driver:

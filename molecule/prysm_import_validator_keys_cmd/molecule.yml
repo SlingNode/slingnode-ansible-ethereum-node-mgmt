@@ -7,6 +7,7 @@ dependency:
     ignore-errors: true
     role-file: requirements_dev.yml
     requirements-file: requirements.yml
+    force: ${SLINGNODE_FORCE:-true}
 
 
 driver:
@@ -50,7 +51,6 @@ provisioner:
         import_validator_keys_cmd: true
 
         blockchain_root_path: /opt/blockchain
-        # prysm_validator_api_token_file: "{{ blockchain_root_path }}/validator/prysm/auth-token"
         keystore_password_file: "keystore-m_12381_3600_1_0_0-1680087924.txt"
 
         keystore_files:
