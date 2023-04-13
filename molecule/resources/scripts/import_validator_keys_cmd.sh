@@ -8,4 +8,4 @@ run_tests () {
     done
 }
 
-run_tests import_validator_keys_api
+run_tests import_validator_keys_cmd
