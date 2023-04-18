@@ -137,6 +137,10 @@ keystores_with_slashing_protection:
 
 The best place to start is to check the examples project. There are multiple example playbooks. The examples project is available here [https://github.com/SlingNode/slingnode-ethereum-examples](https://github.com/SlingNode/slingnode-ethereum-examples).
 
+# Contact
+
+If you have any questions join our [Discord server](https://discord.gg/EPg7yfhmUU) or log a GitHub issue.
+
 # License
 
 MIT
