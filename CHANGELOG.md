@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2023-06-05
+
+### Changed
+
+- Updated Lighthouse image tag from v4.1.0-modern to v4.2.0-modern
+- Updated Prysm image tag from v4.0.3 to v4.0.5
+- Updated Teku image tag to 23.5.0
+- Updated Nimbus image tag from v23.3.2 to v23.5.1
+
 ## [0.5.0] - 2023-04-21
 
 ### Changed
