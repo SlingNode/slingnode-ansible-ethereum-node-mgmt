@@ -25,6 +25,13 @@
     source_slashing_protection_db_to_copy: molecule/resources/test_validator_keystores/slashing_protection_db.json
 
 
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
+
   tasks:
     - name: Install docker
       ansible.builtin.include_role:
