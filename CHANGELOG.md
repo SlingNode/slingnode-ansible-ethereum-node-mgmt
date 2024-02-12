@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2024-02-11
+
+### Changed
+
+- Updated Prysm from 4.2.0 to 4.2.1
+- Updated Nimbus from 24.1.1 to 24.2.0
+- Updated Lighthouse from 4.5.0 to 4.6.0
+- Updated Teku from 24.1.0 to 24.1.1
+
 ## [0.18.0] - 2024-01-20
 
 ### Changed
