@@ -1,4 +1,4 @@
-prysm_docker_image_validator: prysmaticlabs/prysm-validator:v4.2.1
+prysm_docker_image_validator: prysmaticlabs/prysm-validator:v5.0.1
 
 prysm_data_dir: /var/lib/prysm
 
