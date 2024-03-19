@@ -10,7 +10,7 @@
   changed_when: shell_command_output.rc == 0
   #  Lighthouse and Prysm create the token file only after they have successfuly connected to consensus
   until: "shell_command_output is not failed"
-  retries: 20
+  retries: 40
   delay: 3
 
 

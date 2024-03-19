@@ -37,7 +37,7 @@
 
 
 - name: Import validator keys
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ blockchain_docker_compose_path }}"
     files:
       - dc-blockchain-eth-validator-{{ clients.validator }}-mgmt.yml

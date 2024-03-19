@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2024-03-19
+
+### Changed
+
+- Updated Nimbus from 24.2.0 to 24.2.2
+- Updated Teku from 24.1.1 to 24.3.0
+- Updated Lighthouse from 4.6.0 to 5.1.1
+- Updated Prysm from 4.2.1 to 5.0.1
+
+
+### Fixed
+
+- Updated community.docker.docker_compose to community.docker.docker_compose_v2
+- Updated community.docker collection
+- Updated geerlingguy.docker for tests
+
+
 ## [0.19.0] - 2024-02-11
 
 ### Changed
